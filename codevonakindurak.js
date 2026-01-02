@@ -1,4 +1,4 @@
-function init3DCarousel() {
+ function init3DCarousel() {
   $("[carousel='component']").each(function () {
     let componentEl = $(this);
     let wrapEl = componentEl.find("[carousel='wrap']");
@@ -72,7 +72,7 @@ function init3DCarousel() {
       animating = true;
       $("html, body").animate(
         {
-          scrollTop: window.__popupIsOpen ? window.scrollY : activePanel.offset().top,
+          scrollTop: activePanel.offset().top,
         },
         600,
         () => {
@@ -1434,6 +1434,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("Setup abgeschlossen");
 
+  function forceScrollFreedom() {
+    const html = document.documentElement;
+    const body = document.body;
+
+    html.style.overflow = "visible";
+    body.style.overflow = "visible";
+
+    html.style.height = "auto";
+    body.style.height = "auto";
+
+    if (window.lenis) {
+      try {
+        lenis.start();
+      } catch (e) {}
+    }
+  }
+
+  document.addEventListener("readystatechange", forceScrollFreedom);
+  window.addEventListener("load", forceScrollFreedom);
+
+  if (window.barba) {
+    barba.hooks.afterEnter(forceScrollFreedom);
+    barba.hooks.after(forceScrollFreedom);
+  }
+
+  setInterval(forceScrollFreedom, 500);
+});
+
 function initProfileAnimation() {
   const trigger = document.querySelector(".lottie-inner");
   const first = document.querySelector(".first-name");
@@ -1772,9 +1800,3 @@ function initStaggerLinks() {
 
 let interval = setInterval(tick, 1000);
 }
-
-window.addEventListener("load", () => {
-  if (window.lenis) window.lenis.start();
-});
-// globaler Status – sagt uns, ob ein Popup offen ist
-window.__popupIsOpen = false;
