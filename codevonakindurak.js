@@ -1585,7 +1585,7 @@ function initPopups() {
       // SAVE SCROLL POSITION
       window.__lockScrollY = window.scrollY;
 
-      // iOS-SAFE LOCK (Body festnageln)
+      // BODY lock (iOS-safe)
       document.body.style.position = "fixed";
       document.body.style.top = `-${window.__lockScrollY}px`;
       document.body.style.left = "0";
@@ -1604,10 +1604,12 @@ function initPopups() {
         duration: 0.35,
         ease: "power2.out"
       });
-      // Layout neu messen — wichtig für den Kreis-Slider
-if (window.ScrollTrigger) {
-  ScrollTrigger.refresh();
-}
+
+      // Sehr wichtig — ScrollTrigger neu messen (für den Kreis!)
+      if (window.ScrollTrigger) {
+        ScrollTrigger.refresh();
+      }
+
       return;
     }
 
@@ -1675,12 +1677,6 @@ if (window.ScrollTrigger) {
         if (window.lenis?.start) {
           try { lenis.start(); } catch(e){}
         }
-
-        // ScrollTrigger wieder aktivieren
-        if (window.__pausedTriggers) {
-          window.__pausedTriggers.forEach(t => t.enable());
-          window.__pausedTriggers = null;
-        }
       }
     });
 
@@ -1694,6 +1690,7 @@ if (window.ScrollTrigger) {
     }
   }
 }
+
   
 function initStaggerLinks() {
   let splitText;
