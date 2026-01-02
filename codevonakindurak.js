@@ -1594,6 +1594,7 @@ function initPopups() {
 
       const number = btnClass.split("-")[1];
 
+      // findet Popup – egal ob wrapper-1 ODER wrapper_content-1
       let popup =
         document.querySelector(".popup-wrapper-" + number) ||
         document.querySelector(".popup-wrapper_content-" + number);
@@ -1610,33 +1611,20 @@ function initPopups() {
 
       gsap.set(popup, { autoAlpha: 0, display: "flex" });
 
-      // SAVE SCROLL POSITION
+      // 1️⃣ aktuelle Scroll-Position merken
       window.__lockScrollY = window.scrollY;
 
-      // BODY lock (iOS-safe)
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${window.__lockScrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
-
-      // Lenis pausieren
-      if (window.lenis?.stop) {
-        try { lenis.stop(); } catch(e){}
-      }
-
+      // 2️⃣ Popup markieren
       popup.classList.add("popup-open");
+
+      // 3️⃣ Hintergrund SOFORT sperren (kein Springen, kein „einmal scrollen“)
+      document.body.style.overflow = "hidden";
 
       gsap.to(popup, {
         autoAlpha: 1,
         duration: 0.35,
         ease: "power2.out"
       });
-
-      // Sehr wichtig — ScrollTrigger neu messen (für den Kreis!)
-      if (window.ScrollTrigger) {
-        ScrollTrigger.refresh();
-      }
 
       return;
     }
@@ -1662,17 +1650,18 @@ function initPopups() {
 
   document.addEventListener("click", window.__popupDelegationHandler);
 
-
-  // Resolve wrapper
+  // -----------------------------
+  // ALWAYS resolve the REAL WRAPPER
+  // -----------------------------
   function getPopupWrapper(el) {
+    // bevorzugt echte wrapper-1/2/3/4
     let popup = el.closest("[class^='popup-wrapper-']");
     if (!popup) popup = el.closest("[class*='popup-wrapper']");
     return popup;
   }
 
-
   // -----------------------------
-  // CLOSE
+  // CLOSE LOGIC
   // -----------------------------
   function closePopup(popup) {
     if (!popup) return;
@@ -1691,20 +1680,11 @@ function initPopups() {
         popup.classList.remove("popup-open");
         popup.style.display = "none";
 
-        // BODY unlock
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.width = "";
+        // Scroll wieder erlauben
+        document.body.style.overflow = "";
 
-        // zurück zur alten Position
+        // Zur ursprünglichen Position zurück
         window.scrollTo(0, window.__lockScrollY || 0);
-
-        // Lenis weiter
-        if (window.lenis?.start) {
-          try { lenis.start(); } catch(e){}
-        }
       }
     });
 
@@ -1718,7 +1698,6 @@ function initPopups() {
     }
   }
 }
-
   
 function initStaggerLinks() {
   let splitText;
